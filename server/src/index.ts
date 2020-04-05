@@ -7,10 +7,6 @@ const app = express();
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.json(["Welcome to the CoronaStats API server"]);
-});
-
-app.get("/stats", (req, res) => {
   fetch("https://www.worldometers.info/coronavirus/")
     .then((res) => res.text())
     .then((body) => {

@@ -2,13 +2,27 @@
   "name": "coronastatistics-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index"
+    "dev": "nodemon",
+    "start": "node --inspect=5858 -r ts-node/register ./src/index.ts",
+    "build": "tsc"
   },
   "author": "Vincent Dörig",
   "license": "MIT",
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm start",
+    "ext": "ts"
+  },
   "dependencies": {
     "@types/cheerio": "^0.22.17",
     "@types/cors": "^2.8.6",
@@ -18,5 +32,11 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.11.0",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.8.3"
   }
 }
