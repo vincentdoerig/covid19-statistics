@@ -95,8 +95,7 @@ export default {
   methods: {
     async getInfo() {
       try {
-        const stats = await fetch('http://localhost:5000');
-        // const stats = await fetch('https://covid19-statistics-backend.herokuapp.com/');
+        const stats = await fetch('https://covid19-statistics-backend.herokuapp.com/');
         const data = await stats.json();
         this.stats = data;
         this.loading = false;
