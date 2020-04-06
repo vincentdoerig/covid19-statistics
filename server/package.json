@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon",
     "start": "node --inspect=5858 -r ts-node/register ./src/index.ts",
-    "build": "tsc"
+    "build": "tsc -b && node dist/index"
   },
   "author": "Vincent Dörig",
   "license": "MIT",
