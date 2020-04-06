@@ -11,20 +11,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Login to Heroku Container registry
-          env:
-            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          run: |
-            heroku login
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku login
       - name: Build and push
-          env:
-            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          run: |
-            cd server
-            git init
-            git config user.name "Vincent Doerig"
-            git config user.email "dvincdt@gmail.com"
-            git add .
-            git commit -am "deploy"
-            git push --force https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git master
-            rm -rf .git
-            cd ..
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          cd server
+          git init
+          git config user.name "Vincent Doerig"
+          git config user.email "dvincdt@gmail.com"
+          git add .
+          git commit -am "deploy"
+          git push --force https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git master
+          rm -rf .git
+          cd ..
