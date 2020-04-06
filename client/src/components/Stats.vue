@@ -2,32 +2,32 @@
   <section>
     <main>
       <h1>COVID-19 Statistics</h1>
-      <p v-if="error" class="error">An error occured: {{ error }}.</p>
+      <p v-if="error" class="error">An error occured: {{ error }}</p>
       <div>
-        <h2>Total confirmed</h2>
-        <h3 class="confirmed">{{ stats.cases }}</h3>
+        <h2 class="subtitle">Total confirmed</h2>
+        <h3 class="confirmed">{{ r(stats.cases) }}</h3>
       </div>
       <div>
         <h2>Deaths</h2>
-        <h3 class="deaths">{{ stats.deaths }}</h3>
+        <h3 class="deaths">{{ r(stats.deaths) }}</h3>
       </div>
       <div>
         <h2>Recovered</h2>
-        <h3 class="recovered">{{ stats.recovered }}</h3>
+        <h3 class="recovered">{{ r(stats.recovered) }}</h3>
       </div>
       <div>
         <h2>Active</h2>
         <details
           ><summary
-            ><h3 class="active">{{ stats.active.total }}</h3></summary
+            ><h3 class="active">{{ r(stats.active.total) }}</h3></summary
           >
           <div>
             <h3 class="font-normal">Mild</h3>
-            <h4 class="mild">{{ stats.active.mild }}</h4>
+            <h4 class="mild">{{ r(stats.active.mild) }}</h4>
           </div>
           <div>
             <h3 class="font-normal">Serious</h3>
-            <h4 class="serious">{{ stats.active.serious }}</h4>
+            <h4 class="serious">{{ r(stats.active.serious) }}</h4>
           </div>
         </details>
       </div>
@@ -36,21 +36,26 @@
 
         <details
           ><summary>
-            <h3 class="closed">{{ stats.closed.total }}</h3></summary
+            <h3 class="closed">{{ r(stats.closed.total) }}</h3></summary
           >
           <div>
             <h3 class="font-normal">Deaths</h3>
-            <h4 class="mild">{{ stats.closed.deaths }}</h4>
+            <h4 class="mild">{{ r(stats.closed.deaths) }}</h4>
           </div>
           <div>
             <h3 class="font-normal">Recovered</h3>
-            <h4 class="serious">{{ stats.closed.recovered }}</h4>
+            <h4 class="serious">{{ r(stats.closed.recovered) }}</h4>
           </div>
         </details>
       </div>
     </main>
     <footer>
-      <p>Data by <a href="https://www.worldometers.info/coronavirus/">worldometers</a>.</p>
+      <div>
+        <p>Data by <a href="https://www.worldometers.info/coronavirus/">worldometers</a>.</p>
+        <p v-if="!error && !loading">
+          Last update: {{ new Date(stats.lastUpdate).toLocaleString().slice(0, -3) }} (local time).
+        </p>
+      </div>
       <p>
         Next update in
         <span class="countdown" @click="forceRefresh">{{ minutes }}m:{{ seconds }}s</span>
@@ -77,20 +82,25 @@ export default {
           recovered: 'loading...',
           deaths: 'loading...',
         },
+        lastUpdate: 'loading...',
       },
       countdown: {
         time: 300,
         timer: null,
       },
       error: null,
+      loading: true,
     };
   },
   methods: {
     async getInfo() {
       try {
-        const stats = await fetch('https://covid19-statistics-backend.herokuapp.com/');
+        const stats = await fetch('http://localhost:5000');
+        // const stats = await fetch('https://covid19-statistics-backend.herokuapp.com/');
         const data = await stats.json();
         this.stats = data;
+        this.loading = false;
+        this.error = null;
       } catch (error) {
         this.stats = {
           cases: '——————',
@@ -106,6 +116,7 @@ export default {
             recovered: '——————',
             deaths: '——————',
           },
+          lastUpdate: null,
         };
         this.error = error.message;
       }
@@ -122,9 +133,13 @@ export default {
     },
     forceRefresh() {
       clearInterval(this.countdown.timer);
+      this.error = null;
       this.getInfo();
       this.countdown.time = 300;
       this.countdown.timer = setInterval(this.startTimer, 1000);
+    },
+    r(number) {
+      return number.toLocaleString();
     },
   },
   computed: {
@@ -155,8 +170,11 @@ main {
 h1 {
   font-size: 3rem;
 }
-h2 {
+.subtitle {
   font-size: 2rem;
+}
+h2 {
+  font-size: 1.8rem;
   margin-bottom: 0.4em;
   font-weight: 400;
 }

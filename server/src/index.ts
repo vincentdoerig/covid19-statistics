@@ -1,9 +1,10 @@
 import express from "express";
+import cors from "cors";
 import cheerio from "cheerio";
 import fetch from "node-fetch";
-import cors from "cors";
 
 const app = express();
+
 app.use(cors());
 
 app.get("/", (req, res) => {
@@ -12,34 +13,46 @@ app.get("/", (req, res) => {
     .then((body) => {
       const $ = cheerio.load(body);
 
-      // Selector helpers
-      const mainCounterElements = $("div.maincounter-number span");
-      const caseStatusElements = $("span.number-table");
-      const caseStatusMainElements = $("div.number-table-main");
+      const toNumber = (string: string) => parseInt(string.replace(/\,/g, ""));
 
-      // Overall cases
-      const cases: string = mainCounterElements[0].children[0].data.trim();
-      const deaths: string = mainCounterElements[1].children[0].data.trim();
-      const recovered: string = mainCounterElements[2].children[0].data.trim();
-      console.log(`Cases: ${cases}`);
-      console.log(`Deaths: ${deaths}`);
-      console.log(`Recovered: ${recovered}`);
+      const mainCounter = $("div.maincounter-number span");
+      const subtitleCounter = $("div.number-table-main");
+      const detailCounter = $("span.number-table");
+
+      // Overall
+      const cases: number = toNumber(mainCounter[0].children[0].data.trim());
+      const deaths: number = toNumber(mainCounter[1].children[0].data.trim());
+      const recovered: number = toNumber(
+        mainCounter[2].children[0].data.trim()
+      );
 
       // Active cases
-      const active: string = caseStatusMainElements[0].children[0].data.trim();
-      const activeMild: string = caseStatusElements[0].children[0].data.trim();
-      const activeSerious: string = caseStatusElements[1].children[0].data.trim();
-      console.log(`Active infected cases: ${active}`);
-      console.log(`Active infected cases (mild): ${activeMild}`);
-      console.log(`Active infected cases (serious): ${activeSerious}`);
+      const active: number = toNumber(
+        subtitleCounter[0].children[0].data.trim()
+      );
+      const activeMild: number = toNumber(
+        detailCounter[0].children[0].data.trim()
+      );
+      const activeSerious: number = toNumber(
+        detailCounter[1].children[0].data.trim()
+      );
 
       // Closed cases
-      const closed: string = caseStatusMainElements[1].children[0].data.trim();
-      const closedRecovered: string = caseStatusElements[2].children[0].data.trim();
-      const closedDeaths: string = caseStatusElements[3].children[0].data.trim();
-      console.log(`Closed cases: ${closed}`);
-      console.log(`Closed cases (recovered): ${closedRecovered}`);
-      console.log(`Closed cases (deaths): ${closedDeaths}`);
+      const closed: number = toNumber(
+        subtitleCounter[1].children[0].data.trim()
+      );
+      const closedRecovered: number = toNumber(
+        detailCounter[2].children[0].data.trim()
+      );
+      const closedDeaths: number = toNumber(
+        detailCounter[3].children[0].data.trim()
+      );
+
+      // Last updated at
+      const lastUpdate: string = $("#page-top")
+        .next()
+        .text()
+        .substr("Last updated: ".length);
 
       return {
         cases,
@@ -55,6 +68,7 @@ app.get("/", (req, res) => {
           recovered: closedRecovered,
           deaths: closedDeaths,
         },
+        lastUpdate,
       };
     })
     .then((data) => res.json(data));
